@@ -5,6 +5,13 @@ import pandas as pd
 return_time_fmt = time_fmt = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
+def sort_function(x):
+            try:
+                return x["touch"]["updateTime"]
+            except KeyError:
+                return x["temperature"]["updateTime"]
+
+
 class Task:
     def __init__(self, stream_listener, sensor_name_user):
         self.welcome_text = f"Please find sensor {sensor_name_user} and touch sensor."
@@ -16,7 +23,7 @@ class Task:
 
         self.time_task_is_started = None
         self.time_task_is_finished = None
-        self.my_sensor = "Sens-O-lympics Touch"
+        self.my_sensor = sensor_name_user
         self.stream_listener = stream_listener
 
     def initialize(self):
@@ -27,7 +34,12 @@ class Task:
             try:
                 init_time = json_data[0]["touch"]["updateTime"]
                 init_time = pd.to_datetime(np.datetime64(init_time))
-                if not init_time >= t1:
+                if not init_time > t1:
+                    init_time = None
+            except KeyError:
+                init_time = json_data[0]["temperature"]["updateTime"]
+                init_time = pd.to_datetime(np.datetime64(init_time))
+                if not init_time > t1:
                     init_time = None
             except TypeError:
                 continue
@@ -43,11 +55,16 @@ class Task:
         t1 = datetime.datetime.utcnow()
         while not init_time:
             json_data = self.stream_listener.get_sensor_events(self.my_sensor, t1)
-            json_data = sorted(json_data, key=lambda x: x["touch"]["updateTime"])
+            json_data = sorted(json_data, key=sort_function)
             try:
                 init_time = json_data[-1]["touch"]["updateTime"]
                 init_time = pd.to_datetime(np.datetime64(init_time))
-                if not init_time >= t1:
+                if not init_time > t1:
+                    init_time = None
+            except KeyError:
+                init_time = json_data[0]["temperature"]["updateTime"]
+                init_time = pd.to_datetime(np.datetime64(init_time))
+                if not init_time > t1:
                     init_time = None
             except TypeError:
                 continue
@@ -64,11 +81,21 @@ class Task:
         sensor_data = self.get_data()
         # solution_data = sorted(solution_data, key=lambda x: x["touch"]["updateTime"])
         solution_data = []
+        timestamps = []
         for s in sensor_data:
-            if pd.to_datetime(np.datetime64(s["touch"]["updateTime"])) > self.time_task_is_started:
-                solution_data.append(s)
-        solution_data = sorted(solution_data, key=lambda x: x["touch"]["updateTime"])
-        if len(solution_data) == 1:  # Initial touch is included
+            try:
+                t = pd.to_datetime(np.datetime64(s["touch"]["updateTime"]))
+                if t > self.time_task_is_started and t not in timestamps:
+                    timestamps.append(t)
+                    solution_data.append(s)
+            except KeyError:
+                t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
+                if  t > self.time_task_is_started and t not in timestamps:
+                    timestamps.append(t)
+                    solution_data.append(s)
+
+        solution_data = sorted(solution_data, key=sort_function)
+        if len(timestamps) == 1:  # Initial touch is included
             self.is_solved = True
 
 

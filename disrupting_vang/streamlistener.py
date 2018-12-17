@@ -6,17 +6,18 @@ from disrupting_vang import utils
 
 time_fmt = "%Y-%m-%dT%H:%M:%SZ"
 
+devices = {"Sens-O-lympics Prox 0" : "bdoktct7rihjbm0408n0",
+                   "Sens-O-lympics Touch" : "bdoktct7rihjbm0408o0",
+                   "Sens-O-lympics Prox 1" : "bdoktc57rihjbm0400o0",
+                   "Sens-O-lympics Temp 0" : "bdoktbt7rihjbm03vtng",
+                   "Sens-O-lympics Temp 1" : "bchoqbl7rihkg465932g"}
+
+
 class StreamListener:
 
     def get_sensor_events(self, sensor_name, time_from=None):
         # print(f"StreamListener sees {sensor_name}, {time_from}")
 
-
-        devices = {"Sens-O-lympics Prox 0" : "bdoktct7rihjbm0408n0",
-                   "Sens-O-lympics Touch" : "bdoktct7rihjbm0408o0",
-                   "Sens-O-lympics Prox 1" : "bdoktc57rihjbm0400o0",
-                   "Sens-O-lympics Temp 0" : "bdoktbt7rihjbm03vtng",
-                   "Sens-O-lympics Temp 1" : "bchoqbl7rihkg465932g"}
         device_id = devices.get(sensor_name)
 
         utils.load_dotenv()
@@ -38,8 +39,10 @@ class StreamListener:
             auth=(username, password),
             headers={"accept" : "application/json"},
         )
-
-        event_list = [e['data'] for e in response.json()['events']]
+        try:
+            event_list = [e['data'] for e in response.json()['events']]
+        except KeyError:
+            event_list = []
 
         return event_list
 

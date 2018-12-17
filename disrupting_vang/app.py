@@ -6,7 +6,7 @@ from time import sleep
 from flask import Flask, render_template
 
 
-from disrupting_vang.streamlistener import StreamListener
+from disrupting_vang.streamlistener import StreamListener, devices
 
 # initialize app
 from disrupting_vang.task import Task
@@ -17,10 +17,11 @@ app = Flask(__name__)
 
 current_task_id = 0
 
-tasks = {0: Task(StreamListener(), sensor_name_user="First sensor"),
-         1: Task(StreamListener(), sensor_name_user="Second sensor"),
-         2: Task(StreamListener(), sensor_name_user="Third sensor"),
-        }
+
+device_list = list(set(devices.keys()))
+tasks = {}
+for i, device in enumerate(device_list):
+    tasks[i] = Task(StreamListener(), sensor_name_user=device_list[i])
 
 # set up routes
 @app.route('/')
