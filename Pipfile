@@ -7,6 +7,9 @@ name = "pypi"
 requests = "*"
 sseclient-py = "*"
 python-dotenv = "*"
+pandas = "*"
+numpy = "*"
+flask = "*"
 
 [dev-packages]
 ipython = "*"
