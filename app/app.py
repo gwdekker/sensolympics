@@ -4,14 +4,14 @@ from threading import Thread
 from time import sleep
 
 from flask import Flask, render_template
+import waitress
 
+from app import app
 
-from disrupting_vang.streamlistener import StreamListener
+from app.streamlistener import StreamListener
 
 # initialize app
-from disrupting_vang.task import Task
-
-app = Flask(__name__)
+from app.task import Task
 
 # stream_listener = StreamListener()
 
@@ -68,9 +68,3 @@ def doStuff(args):
         #     task = tasks.get(task_id)
         #     if task is None :
         #         print('Finished')
-
-
-if __name__ == "__main__":
-    thread = Thread(target=doStuff, args=(10,))
-    thread.start()
-    app.run()

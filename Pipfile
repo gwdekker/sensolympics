@@ -10,6 +10,7 @@ python-dotenv = "*"
 pandas = "*"
 numpy = "*"
 flask = "*"
+waitress = "*"
 
 [dev-packages]
 ipython = "*"
@@ -18,6 +19,7 @@ flake8 = "*"
 black = "*"
 pytest-cov = "*"
 pre-commit = "*"
+pipenv-to-requirements = "*"
 
 [requires]
 python_version = "3.6"
