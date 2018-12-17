@@ -1,0 +1,30 @@
+################################################################################
+# This requirements file has been automatically generated from `Pipfile` with
+# `pipenv-to-requirements`
+#
+#
+# This has been done to maintain backward compatibility with tools and services
+# that do not support `Pipfile` yet.
+#
+# Do NOT edit it directly, use `pipenv install [-d]` to modify `Pipfile` and
+# `Pipfile.lock` and then regenerate `requirements*.txt`.
+################################################################################
+
+certifi==2018.11.29
+chardet==3.0.4
+click==7.0
+flask==1.0.2
+idna==2.8
+itsdangerous==1.1.0
+jinja2==2.10
+markupsafe==1.1.0
+numpy==1.15.4
+pandas==0.23.4
+python-dateutil==2.7.5
+python-dotenv==0.10.1
+pytz==2018.7
+requests==2.21.0
+six==1.12.0
+sseclient-py==1.7
+urllib3==1.24.1
+werkzeug==0.14.1
