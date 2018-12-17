@@ -8,8 +8,8 @@ time_fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 class StreamListener:
 
-    def get_sensor_events(self, sensor_name, time_from = None):
-        print(f"StreamListener sees {sensor_name}, {time_from}")
+    def get_sensor_events(self, sensor_name, time_from=None):
+        # print(f"StreamListener sees {sensor_name}, {time_from}")
 
 
         devices = {"Sens-O-lympics Prox 0" : "bdoktct7rihjbm0408n0",
@@ -29,7 +29,7 @@ class StreamListener:
         url = f"{api_url_base}/projects/{project_id}/devices/{device_id}/events?"
         url += f"event_types=touch&event_types=temperature&"
 
-        if not time_from is None:
+        if time_from:
             time_url_format = time_from.strftime(time_fmt)
             url += f"start_time={time_url_format}"
 

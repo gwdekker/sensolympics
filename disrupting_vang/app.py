@@ -1,4 +1,5 @@
 import json
+import sys
 from threading import Thread
 from time import sleep
 
@@ -12,33 +13,43 @@ from disrupting_vang.task import Task
 
 app = Flask(__name__)
 
-stream_listener = StreamListener()
+# stream_listener = StreamListener()
 
 current_task_id = 0
 
-tasks = {0: Task(stream_listener, sensor_name_user="First sensor"),
-         1: Task(stream_listener, sensor_name_user="Second sensor"),
-         2: Task(stream_listener, sensor_name_user="Third sensor"),
-         3: None}
+tasks = {0: Task(StreamListener(), sensor_name_user="First sensor"),
+         1: Task(StreamListener(), sensor_name_user="Second sensor"),
+         2: Task(StreamListener(), sensor_name_user="Third sensor"),
+        }
 
 # set up routes
 @app.route('/')
 def main():
     global current_task_id
-    return render_template('index.html', text=str(tasks[current_task_id]))
-
+    try:
+        return render_template('index.html', text=str(tasks[current_task_id]))
+    # return render_template('index.html', text=str(tasks[current_task_id]))
+    except KeyError:
+        return render_template('index.html', text="Game over. Go team or go home!")
 
 def doStuff(args):
     while True:
         sleep(0.5)  # give controll to app.run
         global current_task_id
-
-        current_task = tasks[current_task_id]
+        print(current_task_id)
+        try:
+            current_task = tasks[current_task_id]
+        except KeyError:
+            sys.exit(1)
         if not current_task.is_initialized:
             current_task.initialize()
 
-        if current_task.check_solution():
-            print(f"Solved task {current_task_id}!")
+        if current_task.is_initialized:
+            current_task.check_solution()
+
+        if current_task.is_solved and not current_task.is_finished:
+            current_task.finish()
+        if current_task.is_finished:
             current_task_id += 1
 
 
