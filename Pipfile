@@ -1,0 +1,25 @@
+[[source]]
+url = "https://artifactory.statnett.no/artifactory/api/pypi/pypi_statnett_ia_virtual/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+sseclient-py = "*"
+python-dotenv = "*"
+
+[dev-packages]
+ipython = "*"
+ipdb = "*"
+flake8 = "*"
+black = "*"
+pytest-cov = "*"
+pre-commit = "*"
+
+[requires]
+python_version = "3.6"
+
+[pipenv]
+# Black is still in pre-release, so set allow_prerelease here or lock
+# Pipfile with "pipenv lock --pre".
+allow_prereleases = true
