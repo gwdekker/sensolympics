@@ -1,5 +1,4 @@
 import json
-import sys
 from threading import Thread
 from time import sleep
 
@@ -13,24 +12,21 @@ from app.streamlistener import StreamListener
 # initialize app
 from app.task import Task
 
-# stream_listener = StreamListener()
+stream_listener = StreamListener()
 
 current_task_id = 0
 
-tasks = {0: Task(StreamListener(), sensor_name_user="First sensor"),
-         1: Task(StreamListener(), sensor_name_user="Second sensor"),
-         2: Task(StreamListener(), sensor_name_user="Third sensor"),
-        }
+tasks = {0: Task(stream_listener, sensor_name_user="First sensor"),
+         1: Task(stream_listener, sensor_name_user="Second sensor"),
+         2: Task(stream_listener, sensor_name_user="Third sensor"),
+         3: None}
 
 # set up routes
 @app.route('/')
 def main():
     global current_task_id
-    try:
-        return render_template('index.html', text=str(tasks[current_task_id]))
-    # return render_template('index.html', text=str(tasks[current_task_id]))
-    except KeyError:
-        return render_template('index.html', text="Game over. Go team or go home!")
+    return render_template('index.html', text=str(tasks[current_task_id]))
+
 
 def doStuff(args):
     while True:
@@ -68,3 +64,9 @@ def doStuff(args):
         #     task = tasks.get(task_id)
         #     if task is None :
         #         print('Finished')
+
+
+if __name__ == "__main__":
+    thread = Thread(target=doStuff, args=(10,))
+    thread.start()
+    app.run()

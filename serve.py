@@ -9,3 +9,4 @@ if __name__ == '__main__':
     thread = Thread(target=doStuff, args=(10,))
     thread.start()
     waitress.serve(app)
+
