@@ -2,7 +2,7 @@
 import os
 import requests
 
-from disrupting_vang import utils
+from app import utils
 
 time_fmt = "%Y-%m-%dT%H:%M:%SZ"
 

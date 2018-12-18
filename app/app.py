@@ -1,15 +1,16 @@
 import json
-import sys
 from threading import Thread
 from time import sleep
 
 from flask import Flask, render_template
+import waitress
 
+from app import app
 
 from disrupting_vang.streamlistener import StreamListener, devices
 
 # initialize app
-from disrupting_vang.task import Task
+from app.task import Task
 
 app = Flask(__name__)
 
