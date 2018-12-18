@@ -5,8 +5,7 @@ from app import app
 
 from app.app import doStuff
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     thread = Thread(target=doStuff, args=(10,))
     thread.start()
-    waitress.serve(app)
-
+    waitress.serve(app, host="0.0.0.0", port=34688)

@@ -1,18 +1,14 @@
-import json
-from threading import Thread
+import sys
 from time import sleep
 
-from flask import Flask, render_template
-import waitress
+from flask import render_template
 
 from app import app
 
-from disrupting_vang.streamlistener import StreamListener, devices
+from app.streamlistener import StreamListener, devices
 
 # initialize app
 from app.task import Task
-
-app = Flask(__name__)
 
 # stream_listener = StreamListener()
 
@@ -24,19 +20,27 @@ tasks = {}
 for i, device in enumerate(device_list):
     tasks[i] = Task(StreamListener(), sensor_name_user=device_list[i])
 
+
+@app.route("/restart")
+def restart():
+    global current_task_id
+    current_task_id = 0
+
+
 # set up routes
-@app.route('/')
+@app.route("/")
 def main():
     global current_task_id
     try:
-        return render_template('index.html', text=str(tasks[current_task_id]))
+        return render_template("index.html", text=str(tasks[current_task_id]))
     # return render_template('index.html', text=str(tasks[current_task_id]))
     except KeyError:
-        return render_template('index.html', text="Game over. Go team or go home!")
+        return render_template("index.html", text="Game over. Go team or go home!")
+
 
 def doStuff(args):
     while True:
-        sleep(0.5)  # give controll to app.run
+        sleep(0.001)  # give controll to app.run
         global current_task_id
         print(current_task_id)
         try:
@@ -54,8 +58,6 @@ def doStuff(args):
         if current_task.is_finished:
             current_task_id += 1
 
-
-
         # task_id = 0
         # task = tasks[task_id]
         # while True :
@@ -70,9 +72,3 @@ def doStuff(args):
         #     task = tasks.get(task_id)
         #     if task is None :
         #         print('Finished')
-
-
-if __name__ == "__main__":
-    thread = Thread(target=doStuff, args=(10,))
-    thread.start()
-    app.run()

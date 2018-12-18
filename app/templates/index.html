@@ -2,8 +2,23 @@
 <html>
 <head>
 	<meta http-equiv="refresh" content="0.5" >
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+            $(function() {
+              $('a#test').bind('click', function() {
+                $.getJSON('/restart',
+                    function(data) {
+                  //do nothing
+                });
+                return false;
+              });
+            });
+    </script>
 </head>
 <body>
   <h1>{{ text }}</h1>
+    <form>
+        <a href=# id=test><button class='btn btn-default'>Restart</button></a>
+    </form>
 </body>
 </html>
