@@ -192,7 +192,28 @@ class TouchTask(Task):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
-        self.task_description = "What is "
+        self.task_description = "What is the anser to everything / 6 ?"
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
 
         self.temp_lim = None
+
+    def check_solution(self):
+        sensor_data = self.get_data()
+        # solution_data = sorted(solution_data, key=lambda x: x["touch"]["updateTime"])
+        solution_data = []
+        timestamps = []
+        for s in sensor_data:
+            try:
+                t = pd.to_datetime(np.datetime64(s["touch"]["updateTime"]))
+                if t > self.time_task_is_started and t not in timestamps:
+                    timestamps.append(t)
+                    solution_data.append(s)
+            except KeyError:
+                t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
+                if  t > self.time_task_is_started and t not in timestamps:
+                    timestamps.append(t)
+                    solution_data.append(s)
+
+        solution_data = sorted(solution_data, key=sort_function)
+        if len(timestamps) >= 6:  # Initial touch is included
+            self.is_solved = True
