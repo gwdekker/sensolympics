@@ -6,11 +6,13 @@ from app import utils
 
 time_fmt = "%Y-%m-%dT%H:%M:%SZ"
 
-devices = {"Sens-O-lympics Prox 0" : "bdoktct7rihjbm0408n0",
-                   "Sens-O-lympics Touch" : "bdoktct7rihjbm0408o0",
-                   "Sens-O-lympics Prox 1" : "bdoktc57rihjbm0400o0",
-                   "Sens-O-lympics Temp 0" : "bdoktbt7rihjbm03vtng",
-                   "Sens-O-lympics Temp 1" : "bchoqbl7rihkg465932g"}
+devices = {
+    "Sens-O-lympics Prox 0" : "bdoktct7rihjbm0408n0",
+    "Sens-O-lympics Touch" : "bdoktct7rihjbm0408o0",
+    "Sens-O-lympics Prox 1" : "bdoktc57rihjbm0400o0",
+    "Sens-O-lympics Temp 0" : "bdoktbt7rihjbm03vtng",
+    "Sens-O-lympics Temp 1" : "bchoqbl7rihkg465932g"
+}
 
 
 class StreamListener:

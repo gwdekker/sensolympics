@@ -62,7 +62,7 @@ class Task:
                 if not init_time > t1:
                     init_time = None
             except KeyError:
-                init_time = json_data[0]["temperature"]["updateTime"]
+                init_time = json_data[-1]["temperature"]["updateTime"]
                 init_time = pd.to_datetime(np.datetime64(init_time))
                 if not init_time > t1:
                     init_time = None
@@ -97,7 +97,6 @@ class Task:
         solution_data = sorted(solution_data, key=sort_function)
         if len(timestamps) == 1:  # Initial touch is included
             self.is_solved = True
-
 
     def __str__(self):
         if not self.is_initialized:
