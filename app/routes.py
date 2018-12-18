@@ -2,7 +2,7 @@ import datetime
 import os
 import requests
 
-from flask import render_template
+from flask import render_template, redirect, url_for
 
 from app import app
 
@@ -12,6 +12,7 @@ from app import globals
 @app.route("/restart")
 def restart():
     globals.initialize()
+    return redirect(url_for("main"))
 
 
 @app.route("/get-all-sensors")
@@ -35,12 +36,13 @@ def all_sensors():
 @app.route("/")
 def main():
     try:
-        return render_template("index.html", text=str(globals.tasks[globals.current_task_id]))
+        return render_template(
+            "index.html", text=str(globals.tasks[globals.current_task_id])
+        )
     except KeyError:
         if not globals.total_time:
             globals.total_time = datetime.datetime.now() - globals.t_start
         return render_template(
             "index.html",
-            text=f"Game over. Go team or go home! You used {globals.total_time} seconds"
+            text=f"Game over. Go team or go home! You used {globals.total_time} ",
         )
-

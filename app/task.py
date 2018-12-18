@@ -112,7 +112,7 @@ class Task:
             return self.task_completed_text
 
 
-class TempTask(Task):
+class MaxTempTask(Task):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
@@ -127,6 +127,7 @@ class TempTask(Task):
         solution_data = []
         timestamps = []
         temp_values = []
+        delta = 2.0
         for s in sensor_data:
             try:
                 t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
@@ -141,10 +142,64 @@ class TempTask(Task):
                 continue
         temp_values.sort(reverse=True)
         try:
+            if max(temp_values) >= self.temp_lim - delta+0.1:
+                self.task_description = "Getting hotter! Still missing {:.1f} degrees.".format(
+                    abs(max(temp_values) - self.temp_lim)
+                )
             if max(temp_values) >= self.temp_lim:  # Initial touch is included
                 self.is_solved = True
         except ValueError:
             pass
+
+
+class MinTempTask(Task):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
+        self.task_description = "Oooh! It's so hot here!"
+        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
+
+        self.temp_lim = None
+
+    def check_solution(self):
+        sensor_data = self.get_data()
+        # solution_data = sorted(solution_data, key=lambda x: x["touch"]["updateTime"])
+        solution_data = []
+        timestamps = []
+        temp_values = []
+        delta = 2.0
+        for s in sensor_data:
+            try:
+                t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
+                value = s["temperature"]["value"]
+                if not self.temp_lim:
+                    self.temp_lim = value - delta
+                if t > self.time_task_is_started and t not in timestamps:
+                    timestamps.append(t)
+                    temp_values.append(value)
+                    solution_data.append(s)
+            except KeyError:
+                continue
+        temp_values.sort(reverse=False)
+        try:
+            if min(temp_values) <= self.temp_lim + delta-0.1:
+                self.task_description = "Getting colder! Still missing {:.1f} degrees.".format(
+                    abs(min(temp_values) - self.temp_lim)
+                )
+            if min(temp_values) <= self.temp_lim:  # Initial touch is included
+                self.is_solved = True
+        except ValueError:
+            pass
+
+
+class TouchTask(Task):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
+        self.task_description = "What is "
+        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
+
+        self.temp_lim = None
 
 
 class ProxTask(Task):
@@ -158,8 +213,6 @@ class ProxTask(Task):
 
     def check_solution(self):
         sensor_data = self.get_data()
-        solution_data = []
-        timestamps = []
         not_present_times = [s['objectPresent']['updateTime']
                              for s in sensor_data
                              if ("objectPresent" in s.keys() and
