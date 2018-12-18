@@ -1,5 +1,7 @@
 import sys
 from time import sleep
+import os
+import requests
 
 from flask import render_template
 
@@ -25,6 +27,23 @@ tasks = {
 def restart():
     global current_task_id
     current_task_id = 0
+
+
+@app.route("/get-all-sensors")
+def all_sensors():
+    username = os.environ["SERVICE_ACCOUNT_KEY"]
+    password = os.environ["SERVICE_ACCOUNT_SECRET"]
+    project_id = os.environ["PROJECT_ID"]
+
+    api_url_base = "https://api.disruptive-technologies.com/v2"
+    devices_list_url = f"{api_url_base}/projects/{project_id}/devices"
+
+    # Get list of Devices in Project via API
+    device_listing = requests.get(devices_list_url, auth=(username, password))
+
+    # Print list of Devices
+    devices = device_listing.json()["devices"]
+    return str(devices)
 
 
 # set up routes
