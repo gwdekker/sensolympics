@@ -115,23 +115,29 @@ class TempTask(Task):
         self.task_description = "It's god damn cold here!"
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
 
+        self.temp_lim = None
+
     def check_solution(self):
         sensor_data = self.get_data()
         # solution_data = sorted(solution_data, key=lambda x: x["touch"]["updateTime"])
         solution_data = []
         timestamps = []
+        temp_values = []
         for s in sensor_data:
             try:
-                t = pd.to_datetime(np.datetime64(s["touch"]["updateTime"]))
+                t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
+                value = s["temperature"]["value"]
+                if not self.temp_lim:
+                    self.temp_lim = value + 2.0
                 if t > self.time_task_is_started and t not in timestamps:
                     timestamps.append(t)
+                    temp_values.append(value)
                     solution_data.append(s)
             except KeyError:
-                t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
-                if  t > self.time_task_is_started and t not in timestamps:
-                    timestamps.append(t)
-                    solution_data.append(s)
-
-        solution_data = sorted(solution_data, key=sort_function)
-        if len(timestamps) == 1:  # Initial touch is included
-            self.is_solved = True
+                continue
+        temp_values.sort(reverse=True)
+        try:
+            if max(temp_values) >= self.temp_lim:  # Initial touch is included
+                self.is_solved = True
+        except ValueError:
+            pass
