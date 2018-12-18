@@ -139,7 +139,7 @@ class MaxTempTask(Task):
         temp_values.sort(reverse=True)
         try:
             if max(temp_values) >= self.temp_lim - delta+0.1:
-                self.task_description = "Getting colder! Still missing {:.1f} degrees.".format(
+                self.task_description = "Getting hotter! Still missing {:.1f} degrees.".format(
                     abs(max(temp_values) - self.temp_lim)
                 )
             if max(temp_values) >= self.temp_lim:  # Initial touch is included
@@ -179,10 +179,20 @@ class MinTempTask(Task):
         temp_values.sort(reverse=False)
         try:
             if min(temp_values) <= self.temp_lim + delta-0.1:
-                self.task_description = "Getting hotter! Still missing {:.1f} degrees.".format(
+                self.task_description = "Getting colder! Still missing {:.1f} degrees.".format(
                     abs(min(temp_values) - self.temp_lim)
                 )
             if min(temp_values) <= self.temp_lim:  # Initial touch is included
                 self.is_solved = True
         except ValueError:
             pass
+
+
+class TouchTask(Task):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
+        self.task_description = "What is "
+        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
+
+        self.temp_lim = None
