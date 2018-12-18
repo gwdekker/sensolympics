@@ -12,7 +12,7 @@ from app import globals
 @app.route("/restart")
 def restart():
     globals.initialize()
-    return redirect(url_for("/"))
+    return redirect(url_for("main"))
 
 
 @app.route("/get-all-sensors")
