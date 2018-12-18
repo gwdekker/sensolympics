@@ -1,7 +1,7 @@
 import datetime
 
 from app.streamlistener import StreamListener, devices
-from app.task import Task, TempTask
+from app.task import Task, TempTask, ProxTask
 
 
 def initialize():
@@ -17,6 +17,8 @@ def initialize():
         task_cls = Task
         if "Temp" in device_list[i]:
             task_cls = TempTask
+        elif "Prox" in device_list[i]:
+            task_cls = ProxTask
         tasks[i] = task_cls(StreamListener(), sensor_name_user=device_list[i])
 
     global t_start

@@ -52,7 +52,11 @@ class Task:
             if not init_time > t1:
                 init_time = None
         except KeyError:
-            init_time = json_data[index]["temperature"]["updateTime"]
+            try:
+                init_time = json_data[index]["temperature"]["updateTime"]
+            except KeyError:
+                init_time = json_data[index]["objectPresent"]["updateTime"]
+
             init_time = pd.to_datetime(np.datetime64(init_time))
             if not init_time > t1:
                 init_time = None
@@ -141,3 +145,39 @@ class TempTask(Task):
                 self.is_solved = True
         except ValueError:
             pass
+
+
+class ProxTask(Task):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
+        self.task_description = "Press and hold sensor for 3*pi seconds (+- 10%)"
+        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
+
+        self.target_time = 3*np.pi
+
+    def check_solution(self):
+        sensor_data = self.get_data()
+        solution_data = []
+        timestamps = []
+        not_present_times = [s['objectPresent']['updateTime']
+                             for s in sensor_data
+                             if ("objectPresent" in s.keys() and
+                                 s['objectPresent'].get('state') == 'NOT_PRESENT') ]
+        present_times = [s['objectPresent']['updateTime']
+                             for s in sensor_data
+                             if ("objectPresent" in s.keys() and s['objectPresent'].get('state') == 'PRESENT') ]
+        if len(present_times) > len(not_present_times):
+            present_times = present_times[1:]
+        if len(not_present_times) == 0:
+            return False
+
+        press_duration_s = (pd.to_datetime(not_present_times[0]) - pd.to_datetime(present_times[0])).total_seconds()
+
+        self.task_description = f"Press and hold sensor for 3π seconds (+- 10%). " \
+            f"Last registered press: {press_duration_s:.2f} seconds"
+
+        if abs(press_duration_s - self.target_time)/self.target_time <= 0.1:
+            self.is_solved = True
+            self.task_completed_text = f"Congratulations, task completed! \n" \
+                f"You pressed for {press_duration_s / np.pi:.2f} π seconds. \n Touch sensor to continue."

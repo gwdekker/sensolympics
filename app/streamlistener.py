@@ -30,7 +30,7 @@ class StreamListener:
 
         api_url_base = "https://api.disruptive-technologies.com/v2"
         url = f"{api_url_base}/projects/{project_id}/devices/{device_id}/events?"
-        url += f"event_types=touch&event_types=temperature&"
+        url += f"event_types=touch&event_types=temperature&event_types=objectPresent&"
 
         if time_from:
             time_url_format = time_from.strftime(time_fmt)
