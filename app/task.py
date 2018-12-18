@@ -9,7 +9,10 @@ def sort_function(x):
             try:
                 return x["touch"]["updateTime"]
             except KeyError:
-                return x["temperature"]["updateTime"]
+                try:
+                    return x["temperature"]["updateTime"]
+                except KeyError:
+                    return x["objectPresent"]["updateTime"]
 
 
 class Task:
@@ -18,7 +21,7 @@ class Task:
         self.my_sensor = sensor_name_user
 
         self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor."
-        self.task_description = "Press button once within 5 seconds."
+        self.task_description = f"Press {self.my_sensor}."
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
         self.is_initialized = False
         self.is_finished = False
@@ -115,8 +118,8 @@ class Task:
 class MaxTempTask(Task):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
-        self.task_description = "It's god damn cold here!"
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located just outside the main entrance."
+        self.task_description = f"{self.my_sensor} says: It's god damn cold here!"
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
 
         self.temp_lim = None
@@ -155,8 +158,8 @@ class MaxTempTask(Task):
 class MinTempTask(Task):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
-        self.task_description = "Oooh! It's so hot here!"
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located next to the coffee machine."
+        self.task_description = f"{self.my_sensor} says: Oooh! It's so hot here!"
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
 
         self.temp_lim = None
@@ -195,46 +198,11 @@ class MinTempTask(Task):
 class TouchTask(Task):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at Jevnaker."
         self.task_description = "What is the anser to everything / 6 ?"
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
 
         self.temp_lim = None
-
-
-class ProxTask(Task):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
-        self.task_description = "Press and hold sensor for 3*pi seconds (+- 10%)"
-        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
-
-        self.target_time = 3*np.pi
-
-    def check_solution(self):
-        sensor_data = self.get_data()
-        not_present_times = [s['objectPresent']['updateTime']
-                             for s in sensor_data
-                             if ("objectPresent" in s.keys() and
-                                 s['objectPresent'].get('state') == 'NOT_PRESENT') ]
-        present_times = [s['objectPresent']['updateTime']
-                             for s in sensor_data
-                             if ("objectPresent" in s.keys() and s['objectPresent'].get('state') == 'PRESENT') ]
-        if len(present_times) > len(not_present_times):
-            present_times = present_times[1:]
-        if len(not_present_times) == 0:
-            return False
-
-        press_duration_s = (pd.to_datetime(not_present_times[0]) - pd.to_datetime(present_times[0])).total_seconds()
-
-        self.task_description = f"Press and hold sensor for 3π seconds (+- 10%). " \
-            f"Last registered press: {press_duration_s:.2f} seconds"
-
-        if abs(press_duration_s - self.target_time)/self.target_time <= 0.1:
-            self.is_solved = True
-            self.task_completed_text = f"Congratulations, task completed! \n" \
-                f"You pressed for {press_duration_s / np.pi:.2f} π seconds. \n Touch sensor to continue."
-
 
     def check_solution(self):
         sensor_data = self.get_data()
@@ -252,7 +220,55 @@ class ProxTask(Task):
                 if  t > self.time_task_is_started and t not in timestamps:
                     timestamps.append(t)
                     solution_data.append(s)
-
+        self.task_description = "What is the answer to everything / 6 ? You have pressed the button {} times.".format(
+            len(solution_data)
+        )
         solution_data = sorted(solution_data, key=sort_function)
         if len(timestamps) >= 6:  # Initial touch is included
             self.is_solved = True
+
+
+class ProxTask(Task):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.target_time = 3*np.pi
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at Lunner."
+        self.task_description = f"Press and hold {self.my_sensor} for {self.target_time}*pi " \
+                                f"seconds (+- 10%)"
+        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
+
+
+    def check_solution(self):
+        sensor_data = self.get_data()
+        not_present_times = [s['objectPresent']['updateTime']
+                             for s in sensor_data
+                             if ("objectPresent" in s.keys() and
+                                 s['objectPresent'].get('state') == 'NOT_PRESENT') ]
+        present_times = [s['objectPresent']['updateTime']
+                             for s in sensor_data
+                             if ("objectPresent" in s.keys() and s['objectPresent'].get('state') == 'PRESENT') ]
+        if len(present_times) > len(not_present_times):
+            present_times = present_times[1:]
+        if len(not_present_times) == 0:
+            return False
+
+        press_duration_s = (pd.to_datetime(not_present_times[0]) - pd.to_datetime(present_times[0])).total_seconds()
+
+        self.task_description = f"Press and hold sensor for {self.target_time:.2f} seconds (+- 10%). " \
+            f"Last registered press: {press_duration_s:.2f} seconds"
+
+        if abs(press_duration_s - self.target_time)/self.target_time <= 0.1:
+            self.is_solved = True
+            self.task_completed_text = f"Congratulations, task completed! \n" \
+                f"You pressed for {press_duration_s / np.pi:.2f} π seconds. \n Touch sensor to continue."
+
+class ProxTask1(ProxTask):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.target_time = 4*np.pi
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located in the main room"
+        self.task_description = f"Press and hold {self.my_sensor} for {self.target_time}*pi seconds (+- 10%)"
+        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
+
+
+
