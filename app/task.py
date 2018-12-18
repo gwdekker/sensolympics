@@ -130,13 +130,13 @@ class MaxTempTask(Task):
         solution_data = []
         timestamps = []
         temp_values = []
-        delta = 2.0
+        delta = 10.0
         for s in sensor_data:
             try:
                 t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
                 value = s["temperature"]["value"]
                 if not self.temp_lim:
-                    self.temp_lim = value + 2.0
+                    self.temp_lim = value + delta
                 if t > self.time_task_is_started and t not in timestamps:
                     timestamps.append(t)
                     temp_values.append(value)
