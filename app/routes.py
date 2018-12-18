@@ -44,5 +44,5 @@ def main():
             globals.total_time = datetime.datetime.now() - globals.t_start
         return render_template(
             "index.html",
-            text=f"Game over. Go team or go home! You used {globals.total_time} seconds",
+            text=f"Game over. Go team or go home! You used {globals.total_time} ",
         )

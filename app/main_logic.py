@@ -8,7 +8,7 @@ from app import globals
 def main_logic(args):
     while True:
         sleep(0.001)  # give controll to app.run
-        print(globals.current_task_id)
+        # print(globals.current_task_id)
         try:
             current_task = globals.tasks[globals.current_task_id]
         except KeyError:
