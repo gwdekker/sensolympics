@@ -28,5 +28,5 @@ def initialize():
     global t_start
     t_start = datetime.datetime.now()
 
-    global  total_time
+    global total_time
     total_time = None

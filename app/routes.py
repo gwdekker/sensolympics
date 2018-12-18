@@ -5,13 +5,34 @@ import requests
 from flask import render_template, redirect, url_for
 
 from app import app
+from app.streamlistener import StreamListener, devices
+from app.task import Task, MaxTempTask, MinTempTask, ProxTask
 
 from app import globals
 
 
 @app.route("/restart")
 def restart():
-    globals.initialize()
+    globals.current_task_id = 0
+
+    globals.device_list = list(set(devices.keys()))
+
+    globals.tasks = {}
+    for i, device in enumerate(globals.device_list):
+        task_cls = Task
+        if globals.device_list[i] == "Sens-O-lympics Temp 0":
+            task_cls = MaxTempTask
+        elif globals.device_list[i] == "Sens-O-lympics Temp 1":
+            task_cls = MinTempTask
+        elif "Prox" in globals.device_list[i]:
+            task_cls = ProxTask
+        globals.tasks[i] = task_cls(
+            StreamListener(), sensor_name_user=globals.device_list[i]
+        )
+
+    globals.t_start = datetime.datetime.now()
+
+    globals.total_time = None
     return redirect(url_for("main"))
 
 
