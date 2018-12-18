@@ -6,7 +6,7 @@ from flask import render_template, redirect, url_for
 
 from app import app
 from app.streamlistener import StreamListener, devices
-from app.task import Task, MaxTempTask, MinTempTask, ProxTask
+from app.task import Task, MaxTempTask, MinTempTask, ProxTask, ProxTask1, TouchTask
 
 from app import globals
 
@@ -24,8 +24,12 @@ def restart():
             task_cls = MaxTempTask
         elif globals.device_list[i] == "Sens-O-lympics Temp 1":
             task_cls = MinTempTask
-        elif "Prox" in globals.device_list[i]:
+        elif globals.device_list[i] == "Sens-O-lympics Prox 0":
             task_cls = ProxTask
+        elif globals.device_list[i] == "Sens-O-lympics Prox 1":
+            task_cls = ProxTask1
+        elif globals.device_list[i] == "Sens-O-lympics Touch":
+            task_cls = TouchTask
         globals.tasks[i] = task_cls(
             StreamListener(), sensor_name_user=globals.device_list[i]
         )
