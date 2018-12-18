@@ -32,15 +32,8 @@ class Task:
         while not init_time:
             json_data = self.stream_listener.get_sensor_events(self.my_sensor, t1)
             try:
-                init_time = json_data[0]["touch"]["updateTime"]
-                init_time = pd.to_datetime(np.datetime64(init_time))
-                if not init_time > t1:
-                    init_time = None
-            except KeyError:
-                init_time = json_data[0]["temperature"]["updateTime"]
-                init_time = pd.to_datetime(np.datetime64(init_time))
-                if not init_time > t1:
-                    init_time = None
+                # Index = 0 since we need first touch
+                init_time = self.get_init_time(json_data, t1, 0)
             except TypeError:
                 continue
             except IndexError:
@@ -50,6 +43,20 @@ class Task:
         print("Tas")
         self.is_initialized = True
 
+    @staticmethod
+    def get_init_time(json_data, t1, index):
+        try:
+            init_time = json_data[index]["touch"]["updateTime"]
+            init_time = pd.to_datetime(np.datetime64(init_time))
+            if not init_time > t1:
+                init_time = None
+        except KeyError:
+            init_time = json_data[index]["temperature"]["updateTime"]
+            init_time = pd.to_datetime(np.datetime64(init_time))
+            if not init_time > t1:
+                init_time = None
+        return init_time
+
     def finish(self):
         init_time = None
         t1 = datetime.datetime.utcnow()
@@ -57,15 +64,8 @@ class Task:
             json_data = self.stream_listener.get_sensor_events(self.my_sensor, t1)
             json_data = sorted(json_data, key=sort_function)
             try:
-                init_time = json_data[-1]["touch"]["updateTime"]
-                init_time = pd.to_datetime(np.datetime64(init_time))
-                if not init_time > t1:
-                    init_time = None
-            except KeyError:
-                init_time = json_data[-1]["temperature"]["updateTime"]
-                init_time = pd.to_datetime(np.datetime64(init_time))
-                if not init_time > t1:
-                    init_time = None
+                # Index = -1 since we need last touch
+                init_time = self.get_init_time(json_data, t1, -1)
             except TypeError:
                 continue
             except IndexError:
