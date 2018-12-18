@@ -233,7 +233,7 @@ class ProxTask(Task):
         super().__init__(*args, **kwargs)
         self.target_time = 3*np.pi
         self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at Lunner."
-        self.task_description = f"Press and hold {self.my_sensor} for {self.target_time}*pi " \
+        self.task_description = f"Press and hold {self.my_sensor} for {self.target_time/np.pi} π " \
                                 f"seconds (+- 10%)"
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
 
@@ -254,7 +254,7 @@ class ProxTask(Task):
 
         press_duration_s = (pd.to_datetime(not_present_times[0]) - pd.to_datetime(present_times[0])).total_seconds()
 
-        self.task_description = f"Press and hold sensor for {self.target_time:.2f} seconds (+- 10%). " \
+        self.task_description = f"Press and hold sensor for {self.target_time/np.pi :.2f} π seconds (+- 10%). " \
             f"Last registered press: {press_duration_s:.2f} seconds"
 
         if abs(press_duration_s - self.target_time)/self.target_time <= 0.1:
@@ -267,7 +267,7 @@ class ProxTask1(ProxTask):
         super().__init__(*args, **kwargs)
         self.target_time = 4*np.pi
         self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located in the main room"
-        self.task_description = f"Press and hold {self.my_sensor} for {self.target_time}*pi seconds (+- 10%)"
+        self.task_description = f"Press and hold {self.my_sensor} for {self.target_time/np.pi} π seconds (+- 10%)"
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
 
 
