@@ -1,3 +1,4 @@
+import datetime
 import os
 import requests
 
@@ -36,5 +37,10 @@ def main():
     try:
         return render_template("index.html", text=str(globals.tasks[globals.current_task_id]))
     except KeyError:
-        return render_template("index.html", text="Game over. Go team or go home!")
+        if not globals.total_time:
+            globals.total_time = datetime.datetime.now() - globals.t_start
+        return render_template(
+            "index.html",
+            text=f"Game over. Go team or go home! You used {globals.total_time} seconds"
+        )
 

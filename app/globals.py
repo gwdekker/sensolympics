@@ -1,3 +1,5 @@
+import datetime
+
 from app.streamlistener import StreamListener, devices
 from app.task import Task, TempTask
 
@@ -16,3 +18,9 @@ def initialize():
         if "Temp" in device_list[i]:
             task_cls = TempTask
         tasks[i] = task_cls(StreamListener(), sensor_name_user=device_list[i])
+
+    global t_start
+    t_start = datetime.datetime.now()
+
+    global  total_time
+    total_time = None
