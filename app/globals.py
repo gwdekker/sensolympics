@@ -1,5 +1,5 @@
 from app.streamlistener import StreamListener, devices
-from app.task import Task
+from app.task import Task, TempTask
 
 
 def initialize():
@@ -12,6 +12,7 @@ def initialize():
     global tasks
     tasks = {}
     for i, device in enumerate(device_list):
-        tasks[i] = Task(StreamListener(), sensor_name_user=device_list[i])
-
-
+        task_cls = Task
+        if "Temp" in device_list[i]:
+            task_cls = TempTask
+        tasks[i] = task_cls(StreamListener(), sensor_name_user=device_list[i])
