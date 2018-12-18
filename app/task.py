@@ -14,7 +14,10 @@ def sort_function(x):
 
 class Task:
     def __init__(self, stream_listener, sensor_name_user):
-        self.welcome_text = f"Please find sensor {sensor_name_user} and touch sensor."
+        self.stream_listener = stream_listener
+        self.my_sensor = sensor_name_user
+
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor."
         self.task_description = "Press button once within 5 seconds."
         self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
         self.is_initialized = False
@@ -23,8 +26,6 @@ class Task:
 
         self.time_task_is_started = None
         self.time_task_is_finished = None
-        self.my_sensor = sensor_name_user
-        self.stream_listener = stream_listener
 
     def initialize(self):
         init_time = None
@@ -105,3 +106,32 @@ class Task:
             return self.task_description
         if self.is_solved:
             return self.task_completed_text
+
+
+class TempTask(Task):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.welcome_text = f"Please find sensor {self.my_sensor} and touch sensor. It is located at the table"
+        self.task_description = "It's god damn cold here!"
+        self.task_completed_text = "Congratulations, task completed! Touch sensor to continue."
+
+    def check_solution(self):
+        sensor_data = self.get_data()
+        # solution_data = sorted(solution_data, key=lambda x: x["touch"]["updateTime"])
+        solution_data = []
+        timestamps = []
+        for s in sensor_data:
+            try:
+                t = pd.to_datetime(np.datetime64(s["touch"]["updateTime"]))
+                if t > self.time_task_is_started and t not in timestamps:
+                    timestamps.append(t)
+                    solution_data.append(s)
+            except KeyError:
+                t = pd.to_datetime(np.datetime64(s["temperature"]["updateTime"]))
+                if  t > self.time_task_is_started and t not in timestamps:
+                    timestamps.append(t)
+                    solution_data.append(s)
+
+        solution_data = sorted(solution_data, key=sort_function)
+        if len(timestamps) == 1:  # Initial touch is included
+            self.is_solved = True

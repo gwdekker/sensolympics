@@ -10,7 +10,7 @@ from app import app
 from app.streamlistener import StreamListener, devices
 
 # initialize app
-from app.task import Task
+from app.task import Task, TempTask
 
 # stream_listener = StreamListener()
 
@@ -20,7 +20,10 @@ current_task_id = 0
 device_list = list(set(devices.keys()))
 tasks = {}
 for i, device in enumerate(device_list):
-    tasks[i] = Task(StreamListener(), sensor_name_user=device_list[i])
+    task_cls = Task
+    if "Temp" in device_list[i]:
+        task_cls = TempTask
+    tasks[i] = task_cls(StreamListener(), sensor_name_user=device_list[i])
 
 
 @app.route("/restart")
